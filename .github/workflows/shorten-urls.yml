@@ -46,3 +46,11 @@ jobs:
         with:
           name: hasil_shorturl
           path: hasil_shorturl.csv
+
+      - name: Upload debug HTML dump (untuk diagnosa struktur form)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-page-dump
+          path: debug_page_dump.html
+          if-no-files-found: ignore
