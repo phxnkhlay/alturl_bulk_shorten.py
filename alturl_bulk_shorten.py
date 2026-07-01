@@ -56,7 +56,7 @@ PROXY_AUTH = os.getenv("PROXY_AUTH", "")   # kosong = tidak dipakai
 
 DELAY_BETWEEN_REQUESTS_SEC = 2.0   # jangan terlalu cepat, hindari rate-limit
 OUTPUT_CSV = "hasil_shorturl.csv"
-DEBUG = False   # set True untuk lihat detail field yang terdeteksi
+DEBUG = True   # dibiarkan True dulu supaya kelihatan detail form di log Actions
 
 HEADERS_BASE = {
     "User-Agent": (
@@ -143,8 +143,18 @@ def get_fresh_form(session: requests.Session):
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
-    form = soup.find("form")
+    all_forms = soup.find_all("form")
+    if DEBUG:
+        print(f"== DEBUG: jumlah <form> ditemukan di halaman = {len(all_forms)} ==")
+        for i, f in enumerate(all_forms):
+            print(f"  form[{i}] action={f.get('action')!r} method={f.get('method')!r} "
+                  f"id={f.get('id')!r} name={f.get('name')!r}")
+
+    form = all_forms[0] if all_forms else None
     if form is None:
+        if DEBUG:
+            print("== DEBUG: 2000 karakter pertama HTML halaman ==")
+            print(resp.text[:2000])
         raise RuntimeError("Tidak ketemu <form> di halaman alturl.com. Cek DEBUG output.")
 
     action = form.get("action") or POST_URL_FALLBACK
@@ -177,6 +187,14 @@ def get_fresh_form(session: requests.Session):
             print(f"  {k!r} = {v!r}")
         print("== DEBUG: kandidat field visible (bukan honeypot) ==")
         print(visible_text_inputs)
+        print("== DEBUG: HTML form action mentah ==")
+        print(f"  action attr = {form.get('action')!r}")
+        print(f"  method attr = {form.get('method')!r}")
+        print("== DEBUG: setiap <input>/<textarea> mentah dalam <form> ==")
+        for tag in form.find_all(["input", "textarea"]):
+            print(f"  tag={tag.name} name={tag.get('name')!r} type={tag.get('type')!r} "
+                  f"value={tag.get('value')!r} style={tag.get('style')!r} class={tag.get('class')!r} "
+                  f"id={tag.get('id')!r}")
 
     if len(visible_text_inputs) == 1:
         real_field_name = visible_text_inputs[0]
