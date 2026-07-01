@@ -1,0 +1,48 @@
+name: Bulk Shorten URLs (alturl.com)
+
+# Cara trigger:
+# 1. Manual: buka tab "Actions" di GitHub repo -> pilih workflow ini -> klik "Run workflow"
+# 2. Terjadwal: aktifkan bagian "schedule" di bawah kalau mau jalan otomatis tiap hari/minggu
+on:
+  workflow_dispatch: {}   # tombol Run workflow manual
+  # schedule:
+  #   - cron: "0 3 * * *"   # contoh: tiap hari jam 03:00 UTC (10:00 WIB)
+
+permissions:
+  contents: write   # supaya workflow boleh commit hasil CSV balik ke repo
+
+jobs:
+  shorten:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run shortener script
+        env:
+          # Kalau perlu, tambahkan secret bernama PROXY_AUTH di:
+          # Settings -> Secrets and variables -> Actions -> New repository secret
+          PROXY_AUTH: ${{ secrets.PROXY_AUTH }}
+        run: python alturl_bulk_shorten.py
+
+      - name: Commit hasil CSV ke repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add hasil_shorturl.csv
+          git diff --staged --quiet || git commit -m "Auto: update hasil_shorturl.csv"
+          git push
+
+      - name: Upload hasil sebagai artifact (backup)
+        uses: actions/upload-artifact@v4
+        with:
+          name: hasil_shorturl
+          path: hasil_shorturl.csv
