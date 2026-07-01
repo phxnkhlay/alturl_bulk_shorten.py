@@ -72,9 +72,37 @@ HEADERS_BASE = {
 # ==========================
 RAW_URLS = [
     "https://raw.githubusercontent.com/phxnkhlay/markpom/main/.github/workflows/main.yml",
-] + [
-    f"https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP{day:02d}JANUARI2027"
-    for day in range(1, 32)
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP01JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP02JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP03JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP04JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP05JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP06JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP07JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP08JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP09JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP10JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP11JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP12JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP13JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP14JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP15JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP16JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP17JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP18JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP19JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP20JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP21JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP22JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP23JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP24JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP25JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP26JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP27JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP28JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP29JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP30JANUARI2027",
+    "https://raw.githubusercontent.com/phxnkhlay/markpom/main/MP31JANUARI2027",
 ]
 
 
