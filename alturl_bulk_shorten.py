@@ -192,9 +192,9 @@ def get_fresh_form(session: requests.Session):
         fields[name] = value
 
         itype = (tag.get("type") or "text").lower()
-        if tag.name == "textarea" or itype == "text":
-            if not is_hidden_input(tag) and name.lower() != "longurl":
-                visible_text_inputs.append(name)
+        has_class = tag.has_attr("class") and len(tag.get("class")) > 0
+        if itype == "text" and not has_class and name.lower() != "longurl":
+            visible_text_inputs.append(name)
 
     if DEBUG:
         print(f"== DEBUG: dipakai fallback seluruh halaman? {used_whole_page_fallback} ==")
@@ -266,6 +266,13 @@ def shorten_one(session: requests.Session, long_url: str) -> tuple[str, str]:
     if "longurl" in payload:
         payload["longurl"] = ""     # pastikan honeypot tetap kosong
 
+    # Tombol submit di form ini adalah <input type="image"> tanpa atribut name,
+    # browser normal mengirim koordinat klik sebagai x & y polos.
+    payload.setdefault("x", "15")
+    payload.setdefault("y", "10")
+
+    time.sleep(1.5)  # jeda kecil, meniru waktu manusia mengisi form (jaga-jaga ada cek anti-bot berbasis waktu)
+
     try:
         if method == "GET":
             resp = session.get(post_url, params=payload, timeout=20)
@@ -280,9 +287,10 @@ def shorten_one(session: requests.Session, long_url: str) -> tuple[str, str]:
         return short_url, "OK"
 
     if DEBUG:
-        with open("debug_last_response.html", "w", encoding="utf-8") as f:
+        with open("debug_response_dump.html", "w", encoding="utf-8") as f:
             f.write(resp.text)
-        print("⚠️  Short URL tidak ketemu di response. HTML disimpan ke debug_last_response.html")
+        print(f"⚠️  Short URL tidak ketemu di response. HTML ({len(resp.text)} karakter) "
+              f"disimpan ke debug_response_dump.html")
 
     return "", "GAGAL: short URL tidak ditemukan di response"
 
