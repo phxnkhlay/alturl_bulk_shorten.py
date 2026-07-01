@@ -141,6 +141,12 @@ def get_fresh_form(session: requests.Session):
     """
     resp = session.get(BASE_URL, timeout=20)
     resp.raise_for_status()
+
+    if DEBUG:
+        with open("debug_page_dump.html", "w", encoding="utf-8") as f:
+            f.write(resp.text)
+        print(f"== DEBUG: HTML mentah disimpan ke debug_page_dump.html ({len(resp.text)} karakter) ==")
+
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_forms = soup.find_all("form")
@@ -152,10 +158,19 @@ def get_fresh_form(session: requests.Session):
 
     form = all_forms[0] if all_forms else None
     if form is None:
+        raise RuntimeError("Tidak ketemu <form> di halaman alturl.com. Cek debug_page_dump.html.")
+
+    # Coba cari input/textarea di dalam scope form dulu.
+    input_tags = form.find_all(["input", "textarea"])
+
+    # Fallback: kalau form[0] kosong (kemungkinan HTML rusak / form auto-closed lebih awal
+    # oleh parser), cari SEMUA input/textarea di seluruh halaman sebagai gantinya.
+    used_whole_page_fallback = False
+    if not input_tags:
         if DEBUG:
-            print("== DEBUG: 2000 karakter pertama HTML halaman ==")
-            print(resp.text[:2000])
-        raise RuntimeError("Tidak ketemu <form> di halaman alturl.com. Cek DEBUG output.")
+            print("== DEBUG: form[0] tidak punya input, fallback ke seluruh halaman ==")
+        input_tags = soup.find_all(["input", "textarea"])
+        used_whole_page_fallback = True
 
     action = form.get("action") or POST_URL_FALLBACK
     if action.startswith("/"):
@@ -169,7 +184,7 @@ def get_fresh_form(session: requests.Session):
     real_field_name = None
     visible_text_inputs = []
 
-    for tag in form.find_all(["input", "textarea"]):
+    for tag in input_tags:
         name = tag.get("name")
         if not name:
             continue
@@ -182,6 +197,7 @@ def get_fresh_form(session: requests.Session):
                 visible_text_inputs.append(name)
 
     if DEBUG:
+        print(f"== DEBUG: dipakai fallback seluruh halaman? {used_whole_page_fallback} ==")
         print("== DEBUG: semua field terdeteksi ==")
         for k, v in fields.items():
             print(f"  {k!r} = {v!r}")
@@ -190,8 +206,8 @@ def get_fresh_form(session: requests.Session):
         print("== DEBUG: HTML form action mentah ==")
         print(f"  action attr = {form.get('action')!r}")
         print(f"  method attr = {form.get('method')!r}")
-        print("== DEBUG: setiap <input>/<textarea> mentah dalam <form> ==")
-        for tag in form.find_all(["input", "textarea"]):
+        print("== DEBUG: setiap <input>/<textarea> mentah yang dipakai ==")
+        for tag in input_tags:
             print(f"  tag={tag.name} name={tag.get('name')!r} type={tag.get('type')!r} "
                   f"value={tag.get('value')!r} style={tag.get('style')!r} class={tag.get('class')!r} "
                   f"id={tag.get('id')!r}")
@@ -205,8 +221,8 @@ def get_fresh_form(session: requests.Session):
               f"Memakai '{real_field_name}'. Jalankan DEBUG=True kalau hasil salah.")
     else:
         raise RuntimeError(
-            "Tidak berhasil menentukan field asli untuk long URL. "
-            "Jalankan dengan DEBUG=True lalu cek HTML form-nya manual."
+            "Tidak berhasil menentukan field asli untuk long URL walau sudah fallback ke seluruh "
+            "halaman. Cek isi debug_page_dump.html (di-upload sebagai artifact GitHub Actions)."
         )
 
     return action, method, fields, real_field_name
